@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 
 namespace FluentMigrator.Runner.Processors
 {
@@ -24,24 +23,19 @@ namespace FluentMigrator.Runner.Processors
 
 		public static string ListAvailableProcessorTypes()
 		{
-			IEnumerable<Type> processorTypes = typeof(IMigrationProcessorFactory).Assembly.GetExportedTypes()
-				.Where(t => typeof(IMigrationProcessorFactory).IsAssignableFrom(t) && !t.IsAbstract && !t.IsInterface);
+			var strings = GetProcessorTypes()
+				.OrderBy(x => x.Name)
+				.Select(processorType => processorType.Name)
+				.Select(name => name.Substring(0, name.IndexOf("ProcessorFactory")))
+				.ToArray();
 
-			string processorList = String.Empty;
-			foreach (Type processorType in processorTypes.OrderBy(x => x.Name))
-			{
-				string name = processorType.Name;
-
-				if (!String.IsNullOrEmpty(processorList))
-					processorList = processorList + ", ";
-				processorList += name.Substring(0, name.IndexOf("ProcessorFactory")).ToLowerInvariant();
-			}
-
-			return processorList;
+			return string.Join(", ", strings).ToLowerInvariant();
 		}
 
-		private static object factoriesLock = new object();
-		private static List<IMigrationProcessorFactory> factories;
+		private static readonly object factoriesLock = new object();
+
+		private volatile static IEnumerable<IMigrationProcessorFactory> factories;
+
 		public static IEnumerable<IMigrationProcessorFactory> Factories
 		{
 			get
@@ -52,26 +46,26 @@ namespace FluentMigrator.Runner.Processors
 					{
 						if (factories == null)
 						{
-							Assembly assembly = typeof(IMigrationProcessorFactory).Assembly;
-							var types = assembly.GetExportedTypes().Where(t => typeof(IMigrationProcessorFactory).IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract).ToList();
-							factories = new List<IMigrationProcessorFactory>(types.Count);
-							foreach (var type in types)
-							{
-								var instance = Activator.CreateInstance(type) as IMigrationProcessorFactory;
-								if (instance != null)
-								{
-									factories.Add(instance);
-								}
-							}
+							factories = GetProcessorTypes()
+								.Select(Activator.CreateInstance)
+								.OfType<IMigrationProcessorFactory>()
+								.ToList();
 						}
 					}
+
 				}
 
 				return factories;
 			}
 		}
 
-		public static IMigrationProcessorFactory FindFactoryForProvider(string providerName)
+		private static IEnumerable<Type> GetProcessorTypes()
+		{
+			return typeof(IMigrationProcessorFactory).Assembly.GetExportedTypes()
+				.Where(t => typeof(IMigrationProcessorFactory).IsAssignableFrom(t) && !t.IsAbstract && !t.IsInterface);
+		}
+
+		public static IMigrationProcessorFactory GetFactoryForProvider(string providerName)
 		{
 			return Factories.Where(f => f.IsForProvider(providerName)).FirstOrDefault();
 		}

@@ -151,7 +151,7 @@ namespace FluentMigrator.Runner.Initialization
 		{
 			if ( connection != null )
 			{
-				var factory = ProcessorFactory.FindFactoryForProvider(connection.ProviderName);
+				var factory = ProcessorFactory.GetFactoryForProvider(connection.ProviderName);
 				if ( factory != null )
 				{
 					RunnerContext.Database = factory.Name;
