@@ -32,10 +32,10 @@ namespace FluentMigrator.Runner.Initialization.AssemblyLoader
 
 		public Assembly Load()
 		{
-			string fileName = this.name;
+			string fileName = name;
 			if (!Path.IsPathRooted(fileName))
 			{
-				fileName = Path.GetFullPath(this.name);
+				fileName = Path.GetFullPath(name);
 			}
 			Assembly assembly = Assembly.LoadFrom(fileName);
 			return assembly;

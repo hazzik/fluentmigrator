@@ -27,12 +27,12 @@ namespace FluentMigrator.Runner.Processors
 			IEnumerable<Type> processorTypes = typeof(IMigrationProcessorFactory).Assembly.GetExportedTypes()
 				.Where(t => typeof(IMigrationProcessorFactory).IsAssignableFrom(t) && !t.IsAbstract && !t.IsInterface);
 
-			string processorList = string.Empty;
+			string processorList = String.Empty;
 			foreach (Type processorType in processorTypes.OrderBy(x => x.Name))
 			{
 				string name = processorType.Name;
 
-				if (!string.IsNullOrEmpty(processorList))
+				if (!String.IsNullOrEmpty(processorList))
 					processorList = processorList + ", ";
 				processorList += name.Substring(0, name.IndexOf("ProcessorFactory")).ToLowerInvariant();
 			}
@@ -69,6 +69,11 @@ namespace FluentMigrator.Runner.Processors
 
 				return factories;
 			}
+		}
+
+		public static IMigrationProcessorFactory FindFactoryForProvider(string providerName)
+		{
+			return Factories.Where(f => f.IsForProvider(providerName)).FirstOrDefault();
 		}
 	}
 }

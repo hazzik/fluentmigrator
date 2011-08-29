@@ -49,7 +49,7 @@ namespace FluentMigrator.Runner.Initialization
 		{
 			var assembly = AssemblyLoaderFactory.GetAssemblyLoader(RunnerContext.Target).Load();
 
-			var processor = InitializeProcessor();
+			var processor = InitializeProcessor(assembly.Location + ".config");
 
 			Runner = new MigrationRunner(assembly, RunnerContext, processor);
 		}
@@ -86,24 +86,20 @@ namespace FluentMigrator.Runner.Initialization
 			}
 		}
 
-		public IMigrationProcessor InitializeProcessor()
+		private IMigrationProcessor InitializeProcessor(string configFile)
 		{
-			var configFile = Path.Combine( Environment.CurrentDirectory, RunnerContext.Target );
-			if ( File.Exists( configFile + ".config" ) )
+			var connectionString = RunnerContext.Connection;
+			if ( File.Exists( configFile ) )
 			{
 				var config = ConfigurationManager.OpenExeConfiguration( configFile );
 				var connections = config.ConnectionStrings.ConnectionStrings;
 
 				if ( connections.Count > 1 )
 				{
-					if ( string.IsNullOrEmpty( RunnerContext.Connection ) )
-					{
-						ReadConnectionString( connections[ Environment.MachineName ], config.FilePath );
-					}
-					else
-					{
-						ReadConnectionString( connections[ RunnerContext.Connection ], config.FilePath );
-					}
+					var connection = string.IsNullOrEmpty(connectionString)
+						? connections[Environment.MachineName]
+						: connections[connectionString];
+					ReadConnectionString( connection , config.FilePath);
 				}
 				else if ( connections.Count == 1 )
 				{
@@ -111,9 +107,9 @@ namespace FluentMigrator.Runner.Initialization
 				}
 			}
 
-			if ( NotUsingConfig && !string.IsNullOrEmpty( RunnerContext.Connection ) )
+			if ( NotUsingConfig && !string.IsNullOrEmpty( connectionString ) )
 			{
-				ConnectionString = RunnerContext.Connection;
+				ConnectionString = connectionString;
 			}
 
 			if ( string.IsNullOrEmpty( ConnectionString ) )
@@ -133,7 +129,7 @@ namespace FluentMigrator.Runner.Initialization
 			}
 			else
 			{
-				Console.WriteLine( "Using Connection {0} from Configuration file {1}", RunnerContext.Connection, ConfigFile );
+				Console.WriteLine( "Using Connection {0} from Configuration file {1}", connectionString, ConfigFile );
 			}
 
 			if ( RunnerContext.Timeout == 0 )
@@ -155,7 +151,7 @@ namespace FluentMigrator.Runner.Initialization
 		{
 			if ( connection != null )
 			{
-				var factory = ProcessorFactory.Factories.Where( f => f.IsForProvider( connection.ProviderName ) ).FirstOrDefault();
+				var factory = ProcessorFactory.FindFactoryForProvider(connection.ProviderName);
 				if ( factory != null )
 				{
 					RunnerContext.Database = factory.Name;
