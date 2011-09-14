@@ -18,7 +18,8 @@
 
 namespace FluentMigrator.Runner.Generators.MySql
 {
-    using Expressions;
+	using System;
+	using Expressions;
     using Generic;
 
     public class MySqlGenerator : GenericGenerator
@@ -38,11 +39,11 @@ namespace FluentMigrator.Runner.Generators.MySql
             return string.Format("DROP INDEX {0} ON {1}", Quoter.QuoteIndexName(expression.Index.Name), Quoter.QuoteTableName(expression.Index.TableName));
         }
 
-        public override string Generate(RenameColumnExpression expression)
-        {
-            return string.Format(@"
+		public override string Generate(RenameColumnExpression expression)
+		{
+			return string.Format(@"
 SELECT CONCAT(
-          'ALTER TABLE {0} CHANGE {1} {2} ',
+          'ALTER TABLE `{0}` CHANGE `{1}` `{2}` ',
           CAST(COLUMN_TYPE AS CHAR),
           IF(ISNULL(CHARACTER_SET_NAME),
              '',
@@ -56,16 +57,16 @@ SELECT CONCAT(
              '',
              CONCAT('DEFAULT ', QUOTE(COLUMN_DEFAULT), ' ')),
           UPPER(extra))
-  INTO @change_statement
+ INTO @change_statement
   FROM INFORMATION_SCHEMA.COLUMNS
  WHERE TABLE_NAME = '{0}' AND COLUMN_NAME = '{1}';
 
 PREPARE r FROM @change_statement;
 EXECUTE r;
-DEALLOCATE PREPARE r;", expression.TableName, expression.OldName, expression.NewName);
-        }
+DEALLOCATE PREPARE r;", Quoter.QuoteCommand(expression.TableName), Quoter.QuoteCommand(expression.OldName), Quoter.QuoteCommand(expression.NewName));
+		}
 
-		public override string Generate(AlterDefaultConstraintExpression expression)
+    	public override string Generate(AlterDefaultConstraintExpression expression)
 		{
             return compatabilityMode.HandleCompatabilty("Altering of default constrints is not supporteed for MySql");
 		}

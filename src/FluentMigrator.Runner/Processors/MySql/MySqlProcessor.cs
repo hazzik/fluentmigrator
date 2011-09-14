@@ -49,15 +49,15 @@ namespace FluentMigrator.Runner.Processors.MySql
         public override bool TableExists(string schemaName, string tableName)
         {
             return Exists(@"select table_name from information_schema.tables 
-							where table_schema = SCHEMA() and table_name='{0}'", tableName);
+							where table_schema = SCHEMA() and table_name='{0}'", FormatSqlEscape(tableName));
         }
 
-        public override bool ColumnExists(string schemaName, string tableName, string columnName)
+	    public override bool ColumnExists(string schemaName, string tableName, string columnName)
         {
         	const string sql = @"select column_name from information_schema.columns
 							where table_schema = SCHEMA() and table_name='{0}'
 							and column_name='{1}'";
-        	return Exists(sql, tableName, columnName);
+            return Exists(sql, FormatSqlEscape(tableName), FormatSqlEscape(columnName));
         }
 
     	public override bool ConstraintExists(string schemaName, string tableName, string constraintName)
@@ -65,7 +65,7 @@ namespace FluentMigrator.Runner.Processors.MySql
         	const string sql = @"select constraint_name from information_schema.table_constraints
 							where table_schema = SCHEMA() and table_name='{0}'
 							and constraint_name='{1}'";
-        	return Exists(sql, tableName, constraintName);
+            return Exists(sql, FormatSqlEscape(tableName), FormatSqlEscape(constraintName));
         }
 
     	public override bool IndexExists(string schemaName, string tableName, string indexName)
@@ -73,7 +73,7 @@ namespace FluentMigrator.Runner.Processors.MySql
         	const string sql = @"select index_name from information_schema.statistics
 							where table_schema = SCHEMA() and table_name='{0}'
 							and index_name='{1}'";
-        	return Exists(sql, tableName, indexName);
+            return Exists(sql, FormatSqlEscape(tableName), FormatSqlEscape(indexName));
         }
 
     	public override void Execute(string template, params object[] args)
@@ -121,7 +121,7 @@ namespace FluentMigrator.Runner.Processors.MySql
             using (var command =  factory.CreateCommand(String.Format(template, args), Connection))
             {
                 command.CommandTimeout = Options.Timeout;
-
+				
 				using (var adapter = factory.CreateDataAdapter(command))
                 {
                     adapter.Fill(ds);
@@ -153,6 +153,11 @@ namespace FluentMigrator.Runner.Processors.MySql
 
             if (expression.Operation != null)
                 expression.Operation(Connection, null);
+        }
+
+        private static string FormatSqlEscape(string value)
+        {
+            return value.Replace("'", "''");
         }
     }
 }

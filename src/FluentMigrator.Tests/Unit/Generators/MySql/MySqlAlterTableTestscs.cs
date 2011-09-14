@@ -37,19 +37,9 @@ namespace FluentMigrator.Tests.Unit.Generators.MySql
         [Test]
         public override void CanRenameColumn()
         {
-            // MySql does not appear to have a way to change column without re-specifying the existing column definition
             var expression = GeneratorTestHelper.GetRenameColumnExpression();
             var result = _generator.Generate(expression);
-            result.ShouldBe(string.Empty);
-        }
-
-        [Test]
-        public void CanRenameColumnInStrictMode()
-        {
-            // MySql does not appear to have a way to change column without re-specifying the existing column definition
-            var expression = GeneratorTestHelper.GetRenameColumnExpression();
-            _generator.compatabilityMode = Runner.CompatabilityMode.STRICT;
-            Assert.Throws<DatabaseOperationNotSupportedException>(() => _generator.Generate(expression));
+        	result.ShouldNotBeNull();
         }
 
         [Test]
