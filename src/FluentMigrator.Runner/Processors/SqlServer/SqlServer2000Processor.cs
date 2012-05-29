@@ -59,6 +59,17 @@ namespace FluentMigrator.Runner.Processors.SqlServer
             return Exists("SELECT NULL FROM sysindexes WHERE name = '{0}'", FormatSqlEscape(indexName));
         }
 
+        protected override void Dispose(bool disposing)
+        {
+            if (Transaction != null)
+                Transaction.Dispose();
+            Transaction = null;
+
+            if (Connection != null)
+                Connection.Dispose();
+            Connection = null;
+        }
+
         public override DataSet ReadTableData(string schemaName, string tableName)
         {
             return Read("SELECT * FROM [{0}]", tableName);

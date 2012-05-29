@@ -82,6 +82,17 @@ namespace FluentMigrator.Runner.Processors.SqlServer
             return Exists("SELECT NULL FROM sysindexes WHERE name = '{0}'", FormatSqlEscape(indexName));
         }
 
+        protected override void Dispose(bool disposing)
+        {
+            if (Transaction != null)
+                Transaction.Dispose();
+            Transaction = null;
+
+            if (Connection != null)
+                Connection.Dispose();
+            Connection = null;
+        }
+
         public override void Execute(string template, params object[] args)
         {
             Process(String.Format(template, args));
@@ -235,7 +246,7 @@ namespace FluentMigrator.Runner.Processors.SqlServer
 
             if (Options.PreviewOnly)
                 return;
-			
+            
             if (Connection.State != ConnectionState.Open) Connection.Open();
 
             if (expression.Operation != null)

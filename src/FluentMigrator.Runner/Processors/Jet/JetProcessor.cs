@@ -26,7 +26,7 @@ namespace FluentMigrator.Runner.Processors.Jet
 
             if (Options.PreviewOnly)
                 return;
-			
+            
             if (Connection.State != ConnectionState.Open) Connection.Open();
 
             if (expression.Operation != null)
@@ -131,6 +131,13 @@ namespace FluentMigrator.Runner.Processors.Jet
             {
                 return indexes.Rows.Count > 0;
             }
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if(Connection!=null)
+                Connection.Dispose();
+            Connection = null;
         }
     }
 }

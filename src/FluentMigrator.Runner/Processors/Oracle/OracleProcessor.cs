@@ -127,6 +127,13 @@ namespace FluentMigrator.Runner.Processors.Oracle
             return Exists("SELECT 1 FROM ALL_INDEXES WHERE OWNER = '{0}' AND INDEX_NAME = '{1}'", schemaName.ToUpper(), indexName.ToUpper());
         }
 
+        protected override void Dispose(bool disposing)
+        {
+            if (Connection != null)
+                Connection.Dispose();
+            Connection = null;
+        }
+
         public override void Execute(string template, params object[] args)
         {
             if (template == null)
