@@ -110,10 +110,6 @@ namespace FluentMigrator.Runner.Processors.SqlServer
             Announcer.Say("Committing Transaction");
             Transaction.Commit();
             WasCommitted = true;
-            if (Connection.State != ConnectionState.Closed)
-            {
-                Connection.Close();
-            }
         }
 
         public override void RollbackTransaction()
@@ -121,10 +117,6 @@ namespace FluentMigrator.Runner.Processors.SqlServer
             Announcer.Say("Rolling back transaction");
             Transaction.Rollback();
             WasCommitted = true;
-            if (Connection.State != ConnectionState.Closed)
-            {
-                Connection.Close();
-            }
         }
 
         public override void Execute(string template, params object[] args)
