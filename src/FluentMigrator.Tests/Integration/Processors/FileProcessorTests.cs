@@ -172,6 +172,11 @@ namespace FluentMigrator.Tests.Integration.Processors
             throw new NotImplementedException();
         }
 
+        protected override void Dispose(bool disposing)
+        {
+            
+        }
+
         public override bool Exists(string template, params object[] args)
         {
             throw new NotImplementedException();

@@ -16,6 +16,7 @@
 //
 #endregion
 
+using System;
 using FluentMigrator.Builders.Execute;
 using FluentMigrator.Expressions;
 
@@ -181,5 +182,18 @@ namespace FluentMigrator.Runner.Processors
         public abstract bool ColumnExists(string schemaName, string tableName, string columnName);
         public abstract bool ConstraintExists(string schemaName, string tableName, string constraintName);
         public abstract bool IndexExists(string schemaName, string tableName, string indexName);
+        
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        ~ProcessorBase()
+        {
+            Dispose(false);
+        }
+
+        protected abstract void Dispose(bool disposing);
     }
 }

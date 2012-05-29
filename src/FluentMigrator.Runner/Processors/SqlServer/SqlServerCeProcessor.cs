@@ -27,7 +27,7 @@ namespace FluentMigrator.Runner.Processors.SqlServer
     public sealed class SqlServerCeProcessor : ProcessorBase
     {
         private readonly IDbFactory factory;
-        private readonly IDbConnection connection;
+        private IDbConnection connection;
         private IDbTransaction transaction;
 
         public override string DatabaseType
@@ -67,6 +67,17 @@ namespace FluentMigrator.Runner.Processors.SqlServer
         public override bool IndexExists(string schemaName, string tableName, string indexName)
         {
             return Exists("SELECT NULL FROM sysindexes WHERE name = '{0}'", FormatSqlEscape(indexName));
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (transaction != null)
+                transaction.Dispose();
+            transaction = null;
+
+            if (connection != null)
+                connection.Dispose();
+            connection = null;
         }
 
         public override void Execute(string template, params object[] args)

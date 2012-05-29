@@ -59,6 +59,17 @@ namespace FluentMigrator.Runner.Processors.Postgres
             return Exists("select * from pg_catalog.pg_indexes where schemaname='{0}' and tablename = '{1}' and indexname = '{2}'", FormatToSafeSchemaName(schemaName), FormatToSafeName(tableName), FormatToSafeName(indexName));
         }
 
+        protected override void Dispose(bool disposing)
+        {
+            if (Transaction != null)
+                Transaction.Dispose();
+            Transaction = null;
+
+            if (Connection != null)
+                Connection.Dispose();
+            Connection = null;
+        }
+
         public override DataSet ReadTableData(string schemaName, string tableName)
         {
             return Read("SELECT * FROM {0}.{1}", quoter.QuoteSchemaName(schemaName), quoter.QuoteTableName(tableName));

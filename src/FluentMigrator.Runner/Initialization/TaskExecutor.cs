@@ -39,9 +39,11 @@ namespace FluentMigrator.Runner.Initialization
         {
             var assembly = AssemblyLoaderFactory.GetAssemblyLoader(RunnerContext.Target).Load();
 
-            var processor = InitializeProcessor(assembly.Location);
-            ExecuteTask(CreateMigrationRunner(processor, assembly));
-            RunnerContext.Announcer.Say("Task completed.");
+            using (var processor = InitializeProcessor(assembly.Location))
+            {
+                ExecuteTask(CreateMigrationRunner(processor, assembly));
+                RunnerContext.Announcer.Say("Task completed.");
+            }
         }
 
         protected virtual IMigrationRunner CreateMigrationRunner(IMigrationProcessor processor, Assembly assembly)

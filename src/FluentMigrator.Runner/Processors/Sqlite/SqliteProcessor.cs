@@ -69,6 +69,13 @@ namespace FluentMigrator.Runner.Processors.Sqlite
             return Exists("select count(*) from sqlite_master where name='{0}' and tbl_name='{1}' and type='index'", indexName, tableName);
         }
 
+        protected override void Dispose(bool disposing)
+        {
+            if (Connection != null)
+                Connection.Dispose();
+            Connection = null;
+        }
+
         public override void Execute(string template, params object[] args)
         {
             Process(String.Format(template, args));

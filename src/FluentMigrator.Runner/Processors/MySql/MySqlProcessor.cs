@@ -74,6 +74,13 @@ namespace FluentMigrator.Runner.Processors.MySql
             return Exists(sql, FormatSqlEscape(tableName), FormatSqlEscape(indexName));
         }
 
+        protected override void Dispose(bool disposing)
+        {
+            if (Connection != null)
+                Connection.Dispose();
+            Connection = null;
+        }
+
         public override void Execute(string template, params object[] args)
         {
             if(Options.PreviewOnly) 
