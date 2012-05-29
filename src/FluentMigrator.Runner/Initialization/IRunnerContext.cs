@@ -37,6 +37,7 @@ namespace FluentMigrator.Runner.Initialization
         int Timeout { get; set; }
         string ConnectionStringConfigPath { get; set; }
         IEnumerable<string> Tags { get; set; }
+        bool TransactionPerMigration { get; }
 
         /// <summary>The arbitrary application context passed to the task runner.</summary>
         object ApplicationContext { get; set; }

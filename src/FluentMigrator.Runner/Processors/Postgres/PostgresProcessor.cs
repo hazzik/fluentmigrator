@@ -154,7 +154,7 @@ namespace FluentMigrator.Runner.Processors.Postgres
 
             if (Options.PreviewOnly)
                 return;
-			
+            
             if (Connection.State != ConnectionState.Open) Connection.Open();
 
             if (expression.Operation != null)

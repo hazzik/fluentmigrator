@@ -154,7 +154,7 @@ namespace FluentMigrator.Runner.Processors.MySql
 
             if (Options.PreviewOnly)
                 return;
-			
+            
             if (Connection.State != ConnectionState.Open) Connection.Open();
 
             if (expression.Operation != null)

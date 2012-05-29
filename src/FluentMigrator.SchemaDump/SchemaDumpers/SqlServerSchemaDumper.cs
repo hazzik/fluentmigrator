@@ -158,7 +158,7 @@ namespace FluentMigrator.SchemaDump.SchemaDumpers
                         Size = int.Parse(dr["Length"].ToString()),
                         TableName = dr["Table"].ToString(),
                         Type = GetDbType(int.Parse(dr["TypeID"].ToString())), //TODO: set this property
-												ModificationType = ColumnModificationType.Create
+                                                ModificationType = ColumnModificationType.Create
                     });
                 }
             }

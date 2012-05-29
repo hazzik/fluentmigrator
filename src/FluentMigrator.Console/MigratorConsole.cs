@@ -5,9 +5,9 @@
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-// 
-// http://www.apache.org/licenses/LICENSE-2.0
-// 
+//
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -47,6 +47,7 @@ namespace FluentMigrator.Console
         public bool Verbose;
         public long Version;
         public string WorkingDirectory;
+        private bool transactionPerMigration;
 
         public RunnerContext RunnerContext { get; private set;}
 
@@ -57,101 +58,106 @@ namespace FluentMigrator.Console
             try
             {
                 var optionSet = new OptionSet
-                                    {
-                                        {
-                                            "assembly=|a=|target=",
-                                            "REQUIRED. The assembly containing the migrations you want to execute.",
-                                            v => { TargetAssembly = v; }
-                                            },
-                                        {
-                                            "provider=|dbType=|db=",
-                                            string.Format("REQUIRED. The kind of database you are migrating against. Available choices are: {0}.",
-                                                          ProcessorFactory.ListAvailableProcessorTypes()),
-                                            v => { ProcessorType = v; }
-                                            },
-                                        {
-                                            "connectionString=|connection=|conn=|c=",
+                {
+                    {
+                        "assembly=|a=|target=",
+                        "REQUIRED. The assembly containing the migrations you want to execute.",
+                        v => { TargetAssembly = v; }
+                    },
+                    {
+                        "provider=|dbType=|db=",
+                        string.Format("REQUIRED. The kind of database you are migrating against. Available choices are: {0}.",
+                        ProcessorFactory.ListAvailableProcessorTypes()),
+                        v => { ProcessorType = v; }
+                    },
+                    {
+                        "connectionString=|connection=|conn=|c=",
                                             "The name of the connection string (falls back to machine name) or the connection string itself to the server and database you want to execute your migrations against."
                                             ,
-                                            v => { Connection = v; }
-                                            },
-                                        {
-                                            "connectionStringConfigPath=|configPath=",
-                                            string.Format("The path of the machine.config where the connection string named by connectionString" +
+                        v => { Connection = v; }
+                    },
+                    {
+                        "connectionStringConfigPath=|configPath=",
+                        string.Format("The path of the machine.config where the connection string named by connectionString"+
                                                           " is found. If not specified, it defaults to the machine.config used by the currently running CLR version")
                                             ,
-                                            v => { ConnectionStringConfigPath = v; }
-                                            },
-                                        {
-                                            "namespace=|ns=",
+                        v => { ConnectionStringConfigPath = v; }
+                    },
+                    {
+                        "namespace=|ns=",
                                             "The namespace contains the migrations you want to run. Default is all migrations found within the Target Assembly will be run."
                                             ,
-                                            v => { Namespace = v; }
-                                            },
-                                        {
-                                            "output|out|o",
+                        v => { Namespace = v; }
+                    },
+                    {
+                        "output|out|o",
                                             "Output generated SQL to a file. Default is no output. Use outputFilename to control the filename, otherwise [assemblyname].sql is the default."
                                             ,
-                                            v => { Output = true; }
-                                            },
-                                        {
-                                            "outputFilename=|outfile=|of=",
+                        v => { Output = true; }
+                    },
+                    {
+                        "outputFilename=|outfile=|of=",
                                             "The name of the file to output the generated SQL to. The output option must be included for output to be saved to the file."
                                             ,
-                                            v => { OutputFilename = v; }
-                                            },
-                                        {
-                                            "preview|p",
-                                            "Only output the SQL generated by the migration - do not execute it. Default is false.",
-                                            v => { PreviewOnly = true; }
-                                            },
-                                        {
-                                            "steps=",
-                                            "The number of versions to rollback if the task is 'rollback'. Default is 1.",
-                                            v => { Steps = int.Parse(v); }
-                                            },
-                                        {
-                                            "task=|t=",
+                        v => { OutputFilename = v; }
+                    },
+                    {
+                        "preview|p",
+                        "Only output the SQL generated by the migration - do not execute it. Default is false.",
+                        v => { PreviewOnly = true; }
+                    },
+                    {
+                        "steps=",
+                        "The number of versions to rollback if the task is 'rollback'. Default is 1.",
+                        v => { Steps = int.Parse(v); }
+                    },
+                    {
+                        "task=|t=",
                                             "The task you want FluentMigrator to perform. Available choices are: migrate:up, migrate (same as migrate:up), migrate:down, rollback, rollback:toversion, rollback:all. Default is 'migrate'."
                                             ,
-                                            v => { Task = v; }
+                        v => { Task = v; }
+                    },
+                    {
+                        "version=",
+                        "The specific version to migrate. Default is 0, which will run all migrations.",
+                        v => { Version = long.Parse(v); }
+                    },
+                    {
+                        "verbose=",
+                        "Show the SQL statements generated and execution time in the console. Default is false.",
+                        v => { Verbose = true; }
+                    },
+                    {
+                        "workingdirectory=|wd=",
+                        "The directory to load SQL scripts specified by migrations from.",
+                        v => { WorkingDirectory = v; }
+                    },
+                    {
+                        "profile=",
+                        "The profile to run after executing migrations.",
+                        v => { Profile = v; }
+                    },
+                    {
+                        "timeout=",
+                        "Overrides the default SqlCommand timeout of 30 seconds.",
+                        v => { Timeout = int.Parse(v); }
                                             },
-                                        {
-                                            "version=",
-                                            "The specific version to migrate. Default is 0, which will run all migrations.",
-                                            v => { Version = long.Parse(v); }
-                                            },
-                                        {
-                                            "verbose=",
-                                            "Show the SQL statements generated and execution time in the console. Default is false.",
-                                            v => { Verbose = true; }
-                                            },
-                                        {
-                                            "workingdirectory=|wd=",
-                                            "The directory to load SQL scripts specified by migrations from.",
-                                            v => { WorkingDirectory = v; }
-                                            },
-                                        {
-                                            "profile=",
-                                            "The profile to run after executing migrations.",
-                                            v => { Profile = v; }
-                                            },
-                                        {
-                                            "timeout=",
-                                            "Overrides the default SqlCommand timeout of 30 seconds.",
-                                            v => { Timeout = int.Parse(v); }
-                                            },
-                                        {
+                    {
                                             "tag=",
                                             "Filters the migrations to be run by tag.",
                                             v => { Tags.Add(v); }
                                             },
                                         {
-                                            "help|h|?",
-                                            "Displays this help menu.",
-                                            v => { ShowHelp = true; }
-                                            }
-                                    };
+                        "transaction-per-migration|tpm",
+                        "Enables transaction per migration",
+                        v => { transactionPerMigration = v != null; }
+                    },
+                    {
+                        "help|h|?",
+                        "Displays this help menu.",
+                        v => { ShowHelp = true; }
+                    }
+                };
 
                 try
                 {
@@ -234,10 +240,10 @@ namespace FluentMigrator.Console
             using (var sw = new StreamWriter(outputTo))
             {
                 var fileAnnouncer = new TextWriterAnnouncer(sw)
-                                        {
-                                            ShowElapsedTime = false,
-                                            ShowSql = true
-                                        };
+                                    {
+                                        ShowElapsedTime = false,
+                                        ShowSql = true
+                                    };
                 consoleAnnouncer.ShowElapsedTime = Verbose;
                 consoleAnnouncer.ShowSql = Verbose;
 
@@ -264,6 +270,7 @@ namespace FluentMigrator.Console
                 Timeout = Timeout,
                 ConnectionStringConfigPath = ConnectionStringConfigPath,
                 Tags = Tags
+                TransactionPerMigration = transactionPerMigration,
             };
 
             new TaskExecutor(RunnerContext).Execute();

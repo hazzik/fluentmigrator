@@ -58,6 +58,9 @@ namespace FluentMigrator.NAnt
         [TaskAttribute("timeout")]
         public int Timeout { get; set; }
 
+        [TaskAttribute("transactionpermigration")]
+        public bool TransactionPerMigration { get; set; }
+
         protected override void ExecuteTask()
         {
             var announcer = new ConsoleAnnouncer
@@ -77,7 +80,8 @@ namespace FluentMigrator.NAnt
                                         Steps = Steps,
                                         WorkingDirectory = WorkingDirectory,
                                         Profile = Profile,
-                                        Timeout = Timeout
+                                        Timeout = Timeout,
+                                        TransactionPerMigration = TransactionPerMigration
                                     };
 
             try
