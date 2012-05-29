@@ -41,6 +41,7 @@ namespace FluentMigrator.Runner.Initialization
 
             using (var processor = InitializeProcessor(assembly.Location))
             {
+                processor.BeginTransaction();
                 ExecuteTask(CreateMigrationRunner(processor, assembly));
                 RunnerContext.Announcer.Say("Task completed.");
             }

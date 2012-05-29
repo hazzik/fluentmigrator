@@ -18,7 +18,6 @@ namespace FluentMigrator.Runner.Processors.SqlServer
             this.factory = factory;
             Connection = connection;
             connection.Open();
-            BeginTransaction();
         }
 
         public override string DatabaseType

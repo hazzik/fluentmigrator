@@ -24,9 +24,6 @@ namespace FluentMigrator.Runner.Processors.Postgres
             this.factory = factory;
             Connection = connection;
             connection.Open();
-
-            Announcer.Say("Beginning Transaction");
-            Transaction = Connection.BeginTransaction();
         }
 
         public override void Execute(string template, params object[] args)
