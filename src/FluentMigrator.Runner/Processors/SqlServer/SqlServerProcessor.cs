@@ -137,14 +137,14 @@ namespace FluentMigrator.Runner.Processors.SqlServer
         {
             Announcer.Say("Committing Transaction");
             Transaction.Commit();
-            WasCommitted = true;
+            Transaction = null;
         }
 
         public override void RollbackTransaction()
         {
             Announcer.Say("Rolling back transaction");
             Transaction.Rollback();
-            WasCommitted = true;
+            Transaction = null;
         }
 
         protected override void Process(string sql)

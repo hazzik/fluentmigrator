@@ -31,7 +31,6 @@ namespace FluentMigrator.SchemaDump.SchemaDumpers
     {
         public virtual IAnnouncer Announcer { get; set; }
         public SqlServerProcessor Processor { get; set; }
-        public bool WasCommitted { get; private set; }
 
         public SqlServerSchemaDumper(SqlServerProcessor processor, IAnnouncer announcer)
         {

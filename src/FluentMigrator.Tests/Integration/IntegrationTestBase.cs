@@ -101,7 +101,7 @@ namespace FluentMigrator.Tests.Integration
                 var processor = new SqlServerProcessor(connection, generator, announcer, new ProcessorOptions(), new SqlServerDbFactory());
                 test(processor);
 
-                if (tryRollback && !processor.WasCommitted)
+                if (tryRollback && processor.Transaction != null)
                 {
                     processor.RollbackTransaction();
                 }
@@ -133,7 +133,7 @@ namespace FluentMigrator.Tests.Integration
             
             test(processor);
 
-            if (!processor.WasCommitted)
+            if (processor.Transaction != null)
             {
                 processor.RollbackTransaction();
             }

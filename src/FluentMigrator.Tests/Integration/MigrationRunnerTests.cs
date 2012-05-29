@@ -468,8 +468,7 @@ namespace FluentMigrator.Tests.Integration
 
             try
             {
-                processor.WasCommitted.ShouldBeTrue();
-
+                processor.Transaction.ShouldBeNull();
             }
             finally
             {
@@ -491,7 +490,7 @@ namespace FluentMigrator.Tests.Integration
 
             try
             {
-                processor.WasCommitted.ShouldBeTrue();
+                processor.Transaction.ShouldBeNull();
 
             }
             finally
@@ -670,7 +669,7 @@ namespace FluentMigrator.Tests.Integration
 
         private static void CleanupTestSqlServerDatabase(SqlConnection connection, SqlServerProcessor origProcessor)
         {
-            if (origProcessor.WasCommitted)
+            if (origProcessor.Transaction == null)
             {
                 connection.Close();
 
