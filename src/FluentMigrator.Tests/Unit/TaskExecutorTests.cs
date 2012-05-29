@@ -1,6 +1,7 @@
 using System;
 using System.Data;
 using System.Linq.Expressions;
+using System.Reflection;
 using FluentMigrator.Runner;
 using FluentMigrator.Runner.Initialization;
 using FluentMigrator.Tests.Integration;
@@ -48,7 +49,7 @@ namespace FluentMigrator.Tests.Unit
             runnerContext.SetupGet(x => x.Profile).Returns(profile);
             runnerContext.SetupGet(x => x.Namespace).Returns("FluentMigrator.Tests.Integration.Migrations.Interleaved.Pass3");
 
-            var taskExecutor = new FakeTaskExecutor(runnerContext.Object, _migrationRunner.Object);
+            var taskExecutor = new FakeTaskExecutor(runnerContext.Object, _migrationRunner.Object, processor.Object);
             taskExecutor.Execute();
 
             _migrationRunner.VerifyAll();
@@ -109,15 +110,23 @@ namespace FluentMigrator.Tests.Unit
     internal class FakeTaskExecutor : TaskExecutor
     {
         private readonly IMigrationRunner runner;
+        private readonly IMigrationProcessor processor;
 
-        public FakeTaskExecutor(IRunnerContext runnerContext, IMigrationRunner runner) : base(runnerContext)
+        public FakeTaskExecutor(IRunnerContext runnerContext, IMigrationRunner runner, IMigrationProcessor processor) 
+            : base(runnerContext)
         {
             this.runner = runner;
+            this.processor = processor;
         }
 
-        protected override void Initialize()
+        protected override IMigrationRunner CreateMigrationRunner(IMigrationProcessor processor, Assembly assembly)
         {
-            Runner = runner;
+            return runner;
+        }
+
+        protected override IMigrationProcessor InitializeProcessor(string assemblyLocation)
+        {
+            return processor;
         }
     }
 }

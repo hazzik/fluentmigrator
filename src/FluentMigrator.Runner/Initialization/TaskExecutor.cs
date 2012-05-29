@@ -17,6 +17,7 @@
 #endregion
 
 using System;
+using System.Reflection;
 using FluentMigrator.Runner.Initialization.AssemblyLoader;
 using FluentMigrator.Runner.Processors;
 
@@ -24,7 +25,6 @@ namespace FluentMigrator.Runner.Initialization
 {
     public class TaskExecutor
     {
-        protected IMigrationRunner Runner { get; set; }
         private IRunnerContext RunnerContext { get; set; }
 
         public TaskExecutor(IRunnerContext runnerContext)
@@ -35,19 +35,22 @@ namespace FluentMigrator.Runner.Initialization
             RunnerContext = runnerContext;
         }
 
-        protected virtual void Initialize()
+        public void Execute()
         {
             var assembly = AssemblyLoaderFactory.GetAssemblyLoader(RunnerContext.Target).Load();
 
             var processor = InitializeProcessor(assembly.Location);
-
-            Runner = new MigrationRunner(assembly, RunnerContext, processor);
+            ExecuteTask(CreateMigrationRunner(processor, assembly));
+            RunnerContext.Announcer.Say("Task completed.");
         }
 
-        public void Execute()
+        protected virtual IMigrationRunner CreateMigrationRunner(IMigrationProcessor processor, Assembly assembly)
         {
-            Initialize();
+            return new MigrationRunner(assembly, RunnerContext, processor);
+        }
 
+        private void ExecuteTask(IMigrationRunner Runner)
+        {
             switch (RunnerContext.Task)
             {
                 case null:
@@ -74,11 +77,9 @@ namespace FluentMigrator.Runner.Initialization
                     Runner.MigrateDown(RunnerContext.Version);
                     break;
             }
-
-            RunnerContext.Announcer.Say("Task completed.");
         }
 
-        private IMigrationProcessor InitializeProcessor(string assemblyLocation)
+        protected virtual IMigrationProcessor InitializeProcessor(string assemblyLocation)
         {
             var manager = new ConnectionStringManager(new NetConfigManager(), RunnerContext.Announcer, RunnerContext.Connection, RunnerContext.ConnectionStringConfigPath, assemblyLocation, RunnerContext.Database);
 
