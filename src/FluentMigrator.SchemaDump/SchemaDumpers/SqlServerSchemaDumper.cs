@@ -31,7 +31,6 @@ namespace FluentMigrator.SchemaDump.SchemaDumpers
     {
         public virtual IAnnouncer Announcer { get; set; }
         public SqlServerProcessor Processor { get; set; }
-        public bool WasCommitted { get; private set; }
 
         public SqlServerSchemaDumper(SqlServerProcessor processor, IAnnouncer announcer)
         {
@@ -158,7 +157,7 @@ namespace FluentMigrator.SchemaDump.SchemaDumpers
                         Size = int.Parse(dr["Length"].ToString()),
                         TableName = dr["Table"].ToString(),
                         Type = GetDbType(int.Parse(dr["TypeID"].ToString())), //TODO: set this property
-												ModificationType = ColumnModificationType.Create
+                                                ModificationType = ColumnModificationType.Create
                     });
                 }
             }

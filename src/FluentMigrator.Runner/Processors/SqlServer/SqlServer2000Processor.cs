@@ -10,7 +10,6 @@ namespace FluentMigrator.Runner.Processors.SqlServer
         private readonly IDbFactory factory;
         public IDbConnection Connection { get; private set; }
         public IDbTransaction Transaction { get; private set; }
-        public bool WasCommitted { get; private set; }
 
         public SqlServer2000Processor(IDbConnection connection, IMigrationGenerator generator, IAnnouncer announcer, IMigrationProcessorOptions options, IDbFactory factory)
             : base(generator, announcer, options)
@@ -109,14 +108,14 @@ namespace FluentMigrator.Runner.Processors.SqlServer
         {
             Announcer.Say("Committing Transaction");
             Transaction.Commit();
-            WasCommitted = true;
+            Transaction = null;
         }
 
         public override void RollbackTransaction()
         {
             Announcer.Say("Rolling back transaction");
             Transaction.Rollback();
-            WasCommitted = true;
+            Transaction = null;
         }
 
         public override void Execute(string template, params object[] args)

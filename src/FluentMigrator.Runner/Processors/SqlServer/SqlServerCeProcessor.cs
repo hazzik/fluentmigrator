@@ -124,11 +124,9 @@ namespace FluentMigrator.Runner.Processors.SqlServer
         {
             Announcer.Say("Committing Transaction");
 
-            if (Transaction != null)
-            {
-                Transaction.Commit();
-                Transaction = null;
-            }
+            if (Transaction == null) return;
+            Transaction.Commit();
+            Transaction = null;
         }
 
         public override void RollbackTransaction()
@@ -142,6 +140,7 @@ namespace FluentMigrator.Runner.Processors.SqlServer
             Announcer.Say("Rolling back transaction");
 
             Transaction.Rollback();
+            Transaction = null;
         }
 
         protected override void Process(string sql)
