@@ -41,7 +41,6 @@ namespace FluentMigrator.Runner.Processors.SqlServer
             this.factory = factory;
             this.connection = connection;
             connection.Open();
-            BeginTransaction();
         }
 
         public override bool SchemaExists(string schemaName)
@@ -164,9 +163,6 @@ namespace FluentMigrator.Runner.Processors.SqlServer
 
             if (connection.State != ConnectionState.Open)
                 connection.Open();
-
-            if (transaction == null)
-                BeginTransaction();
 
             using (var command = factory.CreateCommand(sql, connection, transaction))
             {
