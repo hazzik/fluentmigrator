@@ -45,6 +45,7 @@ namespace FluentMigrator.Console
         public int Timeout;
         public bool ShowHelp;
         public string ConnectionStringConfigPath;
+        private bool transactionPerMigration;
 
         static void DisplayHelp(OptionSet p)
         {
@@ -164,6 +165,11 @@ namespace FluentMigrator.Console
                         "timeout=",
                         "Overrides the default SqlCommand timeout of 30 seconds.",
                         v => { Timeout = int.Parse(v); }
+                    }, 
+                    {
+                        "transaction-per-migration|tpm",
+                        "Enables transaction per migration",
+                        v => { transactionPerMigration = v != null; }
                     },
                     {
                         "help|h|?",
@@ -269,6 +275,7 @@ namespace FluentMigrator.Console
                 Profile = Profile,
                 Timeout = Timeout,
                 ConnectionStringConfigPath = ConnectionStringConfigPath,
+                TransactionPerMigration = transactionPerMigration,
             };
 
             new TaskExecutor(runnerContext).Execute();

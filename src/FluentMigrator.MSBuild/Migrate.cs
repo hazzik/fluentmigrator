@@ -27,8 +27,6 @@ namespace FluentMigrator.MSBuild
 {
     public class Migrate : Task
     {
-
-
         /// <summary>
         /// Initializes a new instance of the <see cref="T:Migrate"/> class.
         /// </summary>
@@ -77,6 +75,8 @@ namespace FluentMigrator.MSBuild
 
         public bool PreviewOnly { get; set; }
 
+        public bool TransactionPerMigration { get; set; }
+
         public override bool Execute()
         {
 
@@ -113,6 +113,7 @@ namespace FluentMigrator.MSBuild
                 WorkingDirectory = WorkingDirectory,
                 Profile = Profile,
                 Timeout = Timeout,
+                TransactionPerMigration = TransactionPerMigration,
             };
 
             Log.LogMessage(MessageImportance.Low, "Executing Migration Runner");
