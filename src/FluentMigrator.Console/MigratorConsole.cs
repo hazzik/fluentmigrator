@@ -269,7 +269,7 @@ namespace FluentMigrator.Console
                 Profile = Profile,
                 Timeout = Timeout,
                 ConnectionStringConfigPath = ConnectionStringConfigPath,
-                Tags = Tags
+                Tags = Tags,
                 TransactionPerMigration = transactionPerMigration,
             };
 
