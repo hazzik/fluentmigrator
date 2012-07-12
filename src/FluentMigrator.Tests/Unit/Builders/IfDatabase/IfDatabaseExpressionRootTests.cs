@@ -123,7 +123,8 @@ namespace FluentMigrator.Tests.Unit.Builders.IfDatabase
 
             unknownProcessorMock.SetupGet(x => x.DatabaseType).Returns(databaseTypes.First());
 
-            var context = ExecuteTestMigration(databaseTypes, unknownProcessorMock.Object, m => m.Schema.Table("Foo").Exists());
+            Action<IIfDatabaseExpressionRoot> expression = m => m.Schema.Table("Foo").Exists();
+            var context = ExecuteTestMigration(databaseTypes, unknownProcessorMock.Object, expression);
 
             context.Expressions.Count.ShouldBe(0);
 
